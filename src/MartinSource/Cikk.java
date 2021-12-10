@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  *
- * @author Halko
+ * @author MARtin
  */
 public class Cikk {
     // (5 string 1 integer 2 date 1 string 1 bool)
@@ -72,6 +72,7 @@ public class Cikk {
         this.needsReorder = needs;
     }
     
+    //kopi kopi kopipészt lesz
     public Cikk(Cikk c)
     {
         this.articleNum = c.articleNum;

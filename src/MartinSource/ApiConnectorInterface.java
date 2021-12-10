@@ -27,8 +27,13 @@ public interface ApiConnectorInterface {
     
     /*
         true-t ad vissza ha sikerült, false-t ha nem
+        AMELYIK PARAMÉTERT NEM HASZNÁLJUK AZ implicit NULL :D
     */
     boolean updateDB(String param1, String param2, String param3, String param4,
+            String param5, int param6, Date param7, Date param8, String param9, 
+            boolean param10);
+    
+    boolean removeFromDB(String param1, String param2, String param3, String param4,
             String param5, int param6, Date param7, Date param8, String param9, 
             boolean param10);
 }

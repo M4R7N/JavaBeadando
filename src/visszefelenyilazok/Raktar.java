@@ -2,8 +2,7 @@ package visszefelenyilazok;
 
 import MartinSource.ApiConnectorInterface;
 
-/**
- *
+/*
  * @author MARTIN
  */
 public class Raktar extends javax.swing.JFrame {
@@ -140,7 +139,6 @@ public class Raktar extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jTable1.setColumnSelectionAllowed(true);
         jTable1.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(jTable1);
         jTable1.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
