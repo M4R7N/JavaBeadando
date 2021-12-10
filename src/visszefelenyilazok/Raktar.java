@@ -8,6 +8,7 @@ import MartinSource.ApiConnectorInterface;
  */
 public class Raktar extends javax.swing.JFrame {
 
+    //To-do: ApiConnector
     /**
      * Creates new form Raktar
      */
@@ -29,7 +30,7 @@ public class Raktar extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
-        jTextField1 = new javax.swing.JTextField();
+        kereso = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -57,7 +58,6 @@ public class Raktar extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Nagy Félix és Hurda Martin - Raktár");
-        setMaximumSize(new java.awt.Dimension(890, 658));
         setName("foAblak"); // NOI18N
         setResizable(false);
 
@@ -71,7 +71,12 @@ public class Raktar extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(table);
 
-        jTextField1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        kereso.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        kereso.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                keresoKeyPressed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText("Keresés:");
@@ -83,7 +88,7 @@ public class Raktar extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(6, 6, 6)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField1)
+                    .addComponent(kereso)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 72, Short.MAX_VALUE)))
@@ -101,7 +106,7 @@ public class Raktar extends javax.swing.JFrame {
                         .addGap(5, 5, 5)
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(kereso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -314,6 +319,16 @@ public class Raktar extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void keresoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_keresoKeyPressed
+        // TODO add your handling code here:
+        
+        //Csak akkor keres ha legalább 3 karaktert beírt
+        if(kereso.getText().length() >= 3)
+        {
+            
+        }
+    }//GEN-LAST:event_keresoKeyPressed
+
     /**
      * @param args the command line arguments
      */
@@ -371,7 +386,6 @@ public class Raktar extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
@@ -379,6 +393,7 @@ public class Raktar extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField7;
     private javax.swing.JTextField jTextField8;
+    private javax.swing.JTextField kereso;
     private javax.swing.JTable table;
     // End of variables declaration//GEN-END:variables
 }
