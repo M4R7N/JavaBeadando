@@ -1,6 +1,7 @@
 package ItemTest;
 
 
+import java.text.SimpleDateFormat;
 import java.util.Random;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -46,6 +47,8 @@ public class ItemGenerator {
     private static Object[] generateLine()
     {
         Random r = new Random();
+        
+        SimpleDateFormat f = new SimpleDateFormat("yy MM.dd. HH:mm:ss");
         
         return new Object[] 
         {generateString(), generateString(), generateString(), generateString(), 

@@ -1,9 +1,14 @@
 package visszefelenyilazok;
 
 import MartinSource.ApiConnector;
+import java.awt.Component;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 
@@ -18,12 +23,39 @@ public class Raktar extends javax.swing.JFrame {
         "Megnevezés", "Kategória", "Darabszám", "Elhelyezés dátuma", 
         "Módosítás dátuma", "Kezelő személyzet", "Utánrendelés szükséges"};
     
+    
+    private void SetRenderer(JTable table)
+    {
+        TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer() 
+        {
+            SimpleDateFormat f = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+            //yy MM.dd. HH:mm:ss.S
+            @Override
+            public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus,
+                int row, int column) 
+            {
+                if( value instanceof Date) {
+                    value = f.format(value);
+                }
+                return super.getTableCellRendererComponent(table, value, isSelected,
+                    hasFocus, row, column);
+            }
+        };
+
+        table.getColumnModel().getColumn(6).setCellRenderer(tableCellRenderer);
+        table.getColumnModel().getColumn(7).setCellRenderer(tableCellRenderer);
+    }
+    
     private void SetUpTable()
     {
         DefaultTableModel dtm = (DefaultTableModel)table.getModel();
         
         data = connector.getAllItems();
         dtm.setDataVector(data, column_names);
+        
+        SetRenderer(table);
+        SetRenderer(raktarTabla);
         
         table.setModel(dtm);
         raktarTabla.setModel(dtm);
@@ -45,8 +77,11 @@ public class Raktar extends javax.swing.JFrame {
             kategoriaField.setText((String)data[row][4]);
             darabField.setText(((Integer)data[row][5]).toString());
             
-            elhelyezesField.setText(((Date)data[row][6]).toString());
-            modositasField.setText(((Date)data[row][7]).toString());
+            SimpleDateFormat f = new SimpleDateFormat("yy MM.dd. HH:mm:ss");
+            
+            elhelyezesField.setText(f.format((Date)data[row][6]));
+            modositasField.setText(f.format((Date)data[row][7]));
+            
                 
             kezeloField.setText((String)data[row][8]);
             
@@ -67,6 +102,9 @@ public class Raktar extends javax.swing.JFrame {
      */
     public Raktar() {
         initComponents();
+        
+        SetRenderer(table);
+        SetRenderer(raktarTabla);
         
         SetUpTable();
         
@@ -519,6 +557,8 @@ public class Raktar extends javax.swing.JFrame {
             DefaultTableModel dtm = (DefaultTableModel)table.getModel();
             data = connector.getAllItems(kereso.getText());
             dtm.setDataVector(data, column_names);
+            
+            SetRenderer(table);
             table.setModel(dtm);
         }
         if(kereso.getText().isBlank())

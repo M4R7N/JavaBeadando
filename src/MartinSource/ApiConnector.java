@@ -88,7 +88,7 @@ public class ApiConnector implements ApiConnectorInterface {
         {
             for(int j = 0; j < colCount; ++j)
             {
-                if(data[i][j].toString().equalsIgnoreCase(searchWord))   
+                if(data[i][j].toString().toLowerCase().contains(searchWord.toLowerCase()))   
                 {
                     lines.add(data[i]);
                     break;
