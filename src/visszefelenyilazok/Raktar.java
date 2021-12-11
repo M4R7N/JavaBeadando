@@ -1,6 +1,6 @@
 package visszefelenyilazok;
 
-import MartinSource.ApiConnectorInterface;
+import MartinSource.ApiConnector;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -10,15 +10,18 @@ import javax.swing.table.TableModel;
  */
 public class Raktar extends javax.swing.JFrame {
 
-    private static String column_names[]= {"Cikkszám", "Polc", "Doboz", 
+    private static final ApiConnector connector = new ApiConnector();
+    private static Object[][] data;
+    private static final String column_names[]= {"Cikkszám", "Polc", "Doboz", 
         "Megnevezés", "Kategória", "Darabszám", "Elhelyezés dátuma", 
         "Módosítás dátuma", "Kezelő személyzet", "Utánrendelés szükséges"};
     TableModel m;
     
     private void SetUpTable()
     {
-        m = new DefaultTableModel(column_names, 0);
-        //m = new DefaultTableModel(Api.getAllItems(), column_names);
+        data = connector.getAllItems();
+        //m = new DefaultTableModel(column_names, 0);
+        m = new DefaultTableModel(data, column_names);
         table.setModel(m);
     }
     
@@ -28,6 +31,10 @@ public class Raktar extends javax.swing.JFrame {
      */
     public Raktar() {
         initComponents();
+        
+        SetUpTable();
+        
+        //data = Api.getAllItems();
     }
 
     /**
@@ -48,10 +55,10 @@ public class Raktar extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         raktarPanel = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        raktarTabla = new javax.swing.JTable();
         cikkszamField = new javax.swing.JTextField();
         darabField = new javax.swing.JTextField();
-        leirasField = new javax.swing.JTextField();
+        megnevezesField = new javax.swing.JTextField();
         kategoriaField = new javax.swing.JTextField();
         elhelyezesField = new javax.swing.JTextField();
         modositasField = new javax.swing.JTextField();
@@ -69,8 +76,8 @@ public class Raktar extends javax.swing.JFrame {
         ujButton = new javax.swing.JButton();
         modositButton = new javax.swing.JButton();
         torolButton = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
+        dobozField = new javax.swing.JTextField();
+        polcField = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
 
@@ -80,7 +87,39 @@ public class Raktar extends javax.swing.JFrame {
         setName("foAblak"); // NOI18N
         setResizable(false);
 
+        table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "Cikkszám", "Polc", "Doboz", "Megnevezés", "Kategória", "Darabszám", "Elhelyezés dátuma", "Módosítás dátuma", "Kezelő személyzet", "Utánrendelés szükséges"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class
+            };
+            boolean[] canEdit = new boolean [] {
+                true, true, true, true, true, true, true, true, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        table.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(table);
+        if (table.getColumnModel().getColumnCount() > 0) {
+            table.getColumnModel().getColumn(8).setResizable(false);
+            table.getColumnModel().getColumn(9).setResizable(false);
+        }
 
         kereso.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         kereso.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -121,7 +160,7 @@ public class Raktar extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Keresés", keresesPanel);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        raktarTabla.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null, null, null, null},
@@ -148,20 +187,25 @@ public class Raktar extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jTable1.getTableHeader().setReorderingAllowed(false);
-        jScrollPane2.setViewportView(jTable1);
-        jTable1.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(0).setResizable(false);
-            jTable1.getColumnModel().getColumn(1).setResizable(false);
-            jTable1.getColumnModel().getColumn(2).setResizable(false);
-            jTable1.getColumnModel().getColumn(3).setResizable(false);
-            jTable1.getColumnModel().getColumn(4).setResizable(false);
-            jTable1.getColumnModel().getColumn(5).setResizable(false);
-            jTable1.getColumnModel().getColumn(6).setResizable(false);
-            jTable1.getColumnModel().getColumn(7).setResizable(false);
-            jTable1.getColumnModel().getColumn(8).setResizable(false);
-            jTable1.getColumnModel().getColumn(9).setResizable(false);
+        raktarTabla.getTableHeader().setReorderingAllowed(false);
+        raktarTabla.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                raktarTablaMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(raktarTabla);
+        raktarTabla.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        if (raktarTabla.getColumnModel().getColumnCount() > 0) {
+            raktarTabla.getColumnModel().getColumn(0).setResizable(false);
+            raktarTabla.getColumnModel().getColumn(1).setResizable(false);
+            raktarTabla.getColumnModel().getColumn(2).setResizable(false);
+            raktarTabla.getColumnModel().getColumn(3).setResizable(false);
+            raktarTabla.getColumnModel().getColumn(4).setResizable(false);
+            raktarTabla.getColumnModel().getColumn(5).setResizable(false);
+            raktarTabla.getColumnModel().getColumn(6).setResizable(false);
+            raktarTabla.getColumnModel().getColumn(7).setResizable(false);
+            raktarTabla.getColumnModel().getColumn(8).setResizable(false);
+            raktarTabla.getColumnModel().getColumn(9).setResizable(false);
         }
 
         cikkszamField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -169,7 +213,7 @@ public class Raktar extends javax.swing.JFrame {
         darabField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         darabField.setText("0");
 
-        leirasField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        megnevezesField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         kategoriaField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
@@ -204,10 +248,25 @@ public class Raktar extends javax.swing.JFrame {
         jLabel9.setText("Utánrendelés szükséges:");
 
         ujButton.setText("Új");
+        ujButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ujButtonMouseClicked(evt);
+            }
+        });
 
         modositButton.setText("Módosít");
+        modositButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                modositButtonMouseClicked(evt);
+            }
+        });
 
         torolButton.setText("Töröl");
+        torolButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                torolButtonMouseClicked(evt);
+            }
+        });
 
         jLabel10.setText("Polc:");
 
@@ -234,7 +293,7 @@ public class Raktar extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel10))
                             .addGroup(raktarPanelLayout.createSequentialGroup()
-                                .addComponent(leirasField, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(megnevezesField, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(raktarPanelLayout.createSequentialGroup()
                                 .addComponent(kategoriaField, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -245,8 +304,8 @@ public class Raktar extends javax.swing.JFrame {
                             .addComponent(jLabel6)
                             .addGroup(raktarPanelLayout.createSequentialGroup()
                                 .addGroup(raktarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(polcField, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(dobozField, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(raktarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -322,7 +381,7 @@ public class Raktar extends javax.swing.JFrame {
                         .addGroup(raktarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(kategoriaField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, raktarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(dobozField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jLabel11)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(raktarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -338,12 +397,12 @@ public class Raktar extends javax.swing.JFrame {
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, raktarPanelLayout.createSequentialGroup()
                         .addGroup(raktarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(leirasField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(megnevezesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel4))
                         .addGap(511, 511, 511))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, raktarPanelLayout.createSequentialGroup()
                         .addGroup(raktarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(polcField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel10))
                         .addGap(580, 580, 580))))
         );
@@ -370,13 +429,41 @@ public class Raktar extends javax.swing.JFrame {
         //Csak akkor keres ha legalább 3 karaktert beírt
         if(kereso.getText().length() >= 3)
         {
-            
+            //data = Api.getAllItems(kereso.getText());
         }
         if(kereso.getText().isBlank())
         {
             
         }
     }//GEN-LAST:event_keresoKeyPressed
+
+    private void ujButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ujButtonMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ujButtonMouseClicked
+
+    private void modositButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_modositButtonMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_modositButtonMouseClicked
+
+    private void torolButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_torolButtonMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_torolButtonMouseClicked
+
+    private void raktarTablaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_raktarTablaMouseClicked
+        // TODO add your handling code here:
+        
+        int row;
+        if((row = raktarTabla.getSelectedRow()) > -1)
+        {
+            cikkszamField.setText((String)data[row][0]);
+            polcField.setText((String)data[row][1]);
+            dobozField.setText((String)data[row][2]);
+            megnevezesField.setText((String)data[row][3]);
+            kategoriaField.setText((String)data[row][4]);
+            darabField.setText((String)data[row][5]);
+        }
+        //If a row is selected, take its components and fill the textfields with their values
+    }//GEN-LAST:event_raktarTablaMouseClicked
 
     /**
      * @param args the command line arguments
@@ -417,6 +504,7 @@ public class Raktar extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JTextField cikkszamField;
     private javax.swing.JTextField darabField;
+    private javax.swing.JTextField dobozField;
     private javax.swing.JTextField elhelyezesField;
     private javax.swing.JRadioButton igenRadio;
     private javax.swing.JLabel jLabel1;
@@ -433,18 +521,17 @@ public class Raktar extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField kategoriaField;
     private javax.swing.JPanel keresesPanel;
     private javax.swing.JTextField kereso;
     private javax.swing.JTextField kezeloField;
-    private javax.swing.JTextField leirasField;
+    private javax.swing.JTextField megnevezesField;
     private javax.swing.JButton modositButton;
     private javax.swing.JTextField modositasField;
     private javax.swing.JRadioButton nemRadio;
+    private javax.swing.JTextField polcField;
     private javax.swing.JPanel raktarPanel;
+    private javax.swing.JTable raktarTabla;
     private javax.swing.JTable table;
     private javax.swing.JButton torolButton;
     private javax.swing.JButton ujButton;

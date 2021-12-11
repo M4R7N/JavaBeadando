@@ -25,12 +25,18 @@ public class Logger {
         return dtf.format(LocalDateTime.now());
     }
     
-    public static void LogToSout(String output)
+    public static void Log(String output)
+    {
+        LogToSout(output);
+        LogToFile(output);
+    }
+    
+    private static void LogToSout(String output)
     {
         System.out.println(now() + " - " + output);
     }
     
-    public static void LogToFile(String output)
+    private static void LogToFile(String output)
     {
         File file = null;
         try
