@@ -17,12 +17,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+//Debug:
+import ItemTest.ItemGenerator;
+import java.util.Vector;
 
 /**
  *
  * @author mAtri
  */
 public class ApiConnector implements ApiConnectorInterface {
+    
+    //felül kell írni majd ha már nem tesztelés folyik ATYA
+    private static int rowCount = 20;
+    private static int colCount = 10;
     
     private static String readAll(Reader rd) throws IOException {
         StringBuilder sb = new StringBuilder();
@@ -45,23 +52,26 @@ public class ApiConnector implements ApiConnectorInterface {
         }
     }
     
-    Object[][] data;
+    public Object[][] data;
     
     @Override
     public Object[][] getAllItems()
     {
+        data = ItemGenerator.generateData(rowCount);
+        
+        /*
         try
         {
-           JSONObject json = readJsonFromUrl("localhost:8080/rest/test/item/");
-           
-           //Minden egyéb csak még nincs meg a json formátum
-           //FÉLIX SEGÍTS
-           JSONArray arr = new JSONArray();
+            JSONObject json = readJsonFromUrl("localhost:8080/rest/test/item/");
+
+            //Minden egyéb csak még nincs meg a json formátum
+
+            JSONArray arr = new JSONArray();
         }
         catch(IOException |JSONException e) {
             Logger.Log(e.toString());
         }
-        
+        */
         return data;
     }
     
@@ -71,7 +81,28 @@ public class ApiConnector implements ApiConnectorInterface {
         //Keresés a rendezett data táblázatban és egy új Object[][] visszaadása
         // (Persze csak miután nyomtam egy feltöltést bele)
         
-        return data;
+        Object[][] outData;
+        
+        Vector<Object[]> lines = new Vector<>();
+        for(int i = 0; i < rowCount; ++i)
+        {
+            for(int j = 0; j < colCount; ++j)
+            {
+                if(data[i][j].toString().equalsIgnoreCase(searchWord))   
+                {
+                    lines.add(data[i]);
+                    break;
+                }
+            }
+        }
+        
+        outData = new Object[lines.size()][colCount];
+        for(int i = 0; i < lines.size(); i++)
+        {
+            outData[i] = lines.elementAt(i);
+        }
+        
+        return outData;
     }
     
     @Override
