@@ -19,7 +19,11 @@ import org.json.JSONObject;
 
 //Debug:
 import ItemTest.ItemGenerator;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -58,6 +62,37 @@ public class ApiConnector implements ApiConnectorInterface {
     public Object[][] getAllItems()
     {
         data = ItemGenerator.generateData(rowCount);
+        
+        //kell a változo a teszt logoláshoz
+        final Logger logger = Logger.getGlobal();
+
+        
+        
+        try {
+            //Elködjük a kérést az api féle
+            HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/rest/item/all").openConnection();
+            //megnézzük a vaálasz status codeját
+            int status = connection.getResponseCode();
+            //ha 200 akkor ok
+            if(status == 200)
+            {
+            String jsonReply;
+            //lekérjük a válasz input streamjét
+            InputStream response = connection.getInputStream();
+            //átalakítjuk a választ stringé a függvénnyel
+            jsonReply = convertStreamToString(response);
+            //teszt kiriatás hogy jó-e
+            logger.log(Level.INFO, jsonReply);
+            }
+            else
+            {
+                //csinálni valamit ha nem ment a kérés(valszeg nem fut az api)
+            }
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(ApiConnector.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ApiConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         /*
         try
@@ -141,5 +176,28 @@ public class ApiConnector implements ApiConnectorInterface {
             boolean param10)
     {
         return false;
+    }
+    
+    
+    //Segédfüggvény ami a kérés input streamjét stringé alakítja
+    private static String convertStreamToString(InputStream is) {
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+
+        String line = null;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+        } catch (IOException e) {
+
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+            }
+        }
+        return sb.toString();
     }
 }
