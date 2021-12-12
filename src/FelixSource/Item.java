@@ -5,13 +5,48 @@
  */
 package FelixSource;
 
+import com.google.gson.Gson;
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
- * @author 0.5X
+ * This is one of our entity class this has all the annotation to save to the database and also to serilazie it to JSON to send out with our API
+ * You can see the databse realtion in our documentation (page 7)
+ * @author Desmor
  */
-public class Item {
+
+
+
+public class Item implements Serializable {
+
+    public static Item getFromJson(String jsonObj)
+    {
+        Gson g = new Gson();
+        return g.fromJson(jsonObj, Item.class);
+    }
+    
+    public Item(String ItemID, String Category, String Name, Integer Quantity, String OperatorName, LocalDateTime TimePlaced, LocalDateTime TimeModified, Boolean NeedsReorder, ArrayList<Container> Container) {
+        this.ItemID = ItemID;
+        this.Category = Category;
+        this.Name = Name;
+        this.Quantity = Quantity;
+        this.OperatorName = OperatorName;
+        this.TimePlaced = TimePlaced;
+        this.TimeModified = TimeModified;
+        this.NeedsReorder = NeedsReorder;
+        this.Container = Container;
+    }
+    
+    //@JsonManagedReference
+    public ArrayList<Container> getContainer() {
+        return Container;
+    }
+
+    public void setContainer(ArrayList<Container> Container) {
+        this.Container = Container;
+    }
 
     public String getItemID() {
         return ItemID;
@@ -87,9 +122,13 @@ public class Item {
     LocalDateTime TimeModified;
     Boolean NeedsReorder;
 
+    
+    //@JsonManagedReference
+    ArrayList<Container> Container;
+    
     public Item() {}
       
-    public Item(String ItemID, String Category, String Name, int Quantity, String OperatorName, LocalDateTime TimePlaced, LocalDateTime TimeModified, Boolean NeedsReorder) {
+     public Item(String ItemID, String Category, String Name, int Quantity, String OperatorName, LocalDateTime TimePlaced, LocalDateTime TimeModified, Boolean NeedsReorder) {
         this.ItemID = ItemID;
         this.Category = Category;
         this.Name = Name;

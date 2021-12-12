@@ -27,11 +27,7 @@ public interface ApiConnectorInterface {
     
     public Object[][] getAllItems(String searchWord);
     
-    public Object[][] getAllItems(String itemID, String shelf, String box, 
-            String name, String category, int quantity, Date placed, 
-            Date modified, String operator, boolean reorder);
-    
-    public boolean addToDB(String itemID, String shelf, String box, 
+    public boolean addOrUpdateDB(String itemID, String shelf, String box, 
             String name, String category, int quantity, LocalDateTime placed, 
             LocalDateTime modified, String operator, boolean reorder);
     

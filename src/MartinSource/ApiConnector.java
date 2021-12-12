@@ -5,6 +5,8 @@
  */
 package MartinSource;
 
+import FelixSource.Container;
+import FelixSource.Item;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,10 +20,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 //Debug:
-import ItemTest.ItemGenerator;
+import java.io.DataOutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,42 +35,15 @@ import java.util.logging.Logger;
  */
 public class ApiConnector implements ApiConnectorInterface {
     
-    //felül kell írni majd ha már nem tesztelés folyik ATYA
-    private static int rowCount = 20;
-    private static int colCount = 10;
-    
-    private static String readAll(Reader rd) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        int cp;
-        while ((cp = rd.read()) != -1) {
-          sb.append((char) cp);
-        }
-        return sb.toString();
-    }
-    
-    private static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
-        InputStream is = new URL(url).openStream();
-        try {
-          BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-          String jsonText = readAll(rd);
-          JSONObject json = new JSONObject(jsonText);
-          return json;
-        } finally {
-          is.close();
-        }
-    }
-    
-    private Object[][] data;
+    private Object[][] data = new Object[0][10];
     
     @Override
     public Object[][] getAllItems()
     {
-        data = ItemGenerator.generateData(rowCount);
+        //data = ItemGenerator.generateData(rowCount);
         
         //kell a változo a teszt logoláshoz
         final Logger logger = Logger.getGlobal();
-
-        
         
         try {
             //Elködjük a kérést az api féle
@@ -82,8 +58,100 @@ public class ApiConnector implements ApiConnectorInterface {
                 InputStream response = connection.getInputStream();
                 //átalakítjuk a választ stringé a függvénnyel
                 jsonReply = convertStreamToString(response);
+                
+                //Convert json to object[][]
+                
+                Vector<Object[]> items = new Vector<>();
+                Vector<Item> collection = new Vector<>();
+                
+                JSONArray jsonarr = new JSONArray(jsonReply);
+                
+                for(int i = 0; i < jsonarr.length(); i++)
+                {
+                    JSONObject o = (JSONObject)jsonarr.get(i);
+                    
+                    Item item = new Item(
+                            o.getString("itemID"), 
+                            o.getString("category"),
+                            o.getString("name"),
+                            o.getInt("quantity"),
+                            o.getString("operatorName"),
+                            LocalDateTime.parse(o.getString("timePlaced")),
+                            LocalDateTime.parse(o.getString("timeModified")),
+                            o.getBoolean("needsReorder")
+                    );
+                    
+                    JSONArray cArr = o.getJSONArray("container");
+                    
+                    ArrayList<Container> arrList = new ArrayList<>();
+                    
+                    for(int j = 0; j < cArr.length(); j++)
+                    {
+                        JSONObject c = (JSONObject)cArr.getJSONObject(j);
+                        Container singleCon = new Container(
+                            c.getString("shelf"),
+                            c.getString("box")
+                        );
+                        
+                        arrList.add(singleCon);
+                    }
+                    
+                    item.setContainer(arrList);
+                    
+                    collection.add(item);
+                }
+                
+                for(int i = 0; i < collection.size(); i++)
+                {
+                    Item item = collection.get(i);
+                    ArrayList<Container> cArr = item.getContainer();
+                    if(cArr.size()>0)
+                    {
+                        for(Container c : cArr)
+                        {
+                            Object[] out = new Object[10];
+                            
+                            out[0] = item.getItemID();
+                            out[1] = c.getShelf();
+                            out[2] = c.getBox();
+                            out[3] = item.getName();
+                            out[4] = item.getCategory();
+                            out[5] = item.getQuantity();
+                            out[6] = java.sql.Timestamp.valueOf(item.getTimePlaced());
+                            out[7] = java.sql.Timestamp.valueOf(item.getTimeModified());
+                            out[8] = item.getOperatorName();
+                            out[9] = item.getNeedsReorder();
+                            
+                            items.add(out);
+                        }
+                    }
+                    else
+                    {
+                        Object[] out = new Object[10];
+                        
+                        out[0] = item.getItemID();
+                        out[3] = item.getName();
+                        out[4] = item.getCategory();
+                        out[5] = item.getQuantity();
+                        out[6] = java.sql.Timestamp.valueOf(item.getTimePlaced());
+                        out[7] = java.sql.Timestamp.valueOf(item.getTimeModified());
+                        out[8] = item.getOperatorName();
+                        out[9] = item.getNeedsReorder();
+                        
+                        items.add(out);
+                    }
+                }
+                
+                data = new Object[items.size()][10];
+                
+                for(int i = 0; i < items.size(); i++)
+                {
+                    data[i] = items.get(i);
+                }
+                
+                
                 //teszt kiriatás hogy jó-e
-                logger.log(Level.INFO, jsonReply);
+                //logger.log(Level.INFO, jsonReply);
             }
             else
             {
@@ -108,11 +176,19 @@ public class ApiConnector implements ApiConnectorInterface {
         Object[][] outData;
         
         Vector<Object[]> lines = new Vector<>();
-        for(int i = 0; i < rowCount; ++i)
+        for(int i = 0; i < data.length; ++i)
         {
-            for(int j = 0; j < colCount; ++j)
+            for(int j = 0; j < data[i].length; ++j)
             {
-                if(data[i][j].toString().toLowerCase().contains(searchWord.toLowerCase()))   
+                boolean res = false;
+                try{
+                    res = data[i][j].toString().toLowerCase().contains(searchWord.toLowerCase());
+                }
+                catch(NullPointerException ex)
+                {
+                    Logger.getLogger(ApiConnector.class.getName()).log(Level.FINE, null, ex);
+                }
+                if(res)   
                 {
                     lines.add(data[i]);
                     break;
@@ -120,7 +196,7 @@ public class ApiConnector implements ApiConnectorInterface {
             }
         }
         
-        outData = new Object[lines.size()][colCount];
+        outData = new Object[lines.size()][10];
         for(int i = 0; i < lines.size(); i++)
         {
             outData[i] = lines.elementAt(i);
@@ -129,28 +205,56 @@ public class ApiConnector implements ApiConnectorInterface {
         return outData;
     }
     
-    /* {"Cikkszám", "Polc", "Doboz", 
-        "Megnevezés", "Kategória", "Darabszám", "Elhelyezés dátuma", 
-        "Módosítás dátuma", "Kezelő személyzet", "Utánrendelés szükséges"};
-    */
-    
     @Override
-    public Object[][] getAllItems(String itemID, String shelf, String box, 
-            String name, String category, int quantity, Date placed, 
-            Date modified, String operator, boolean reorder)
-    {
-        //Ezt nem akarom használni mert nem sok értelme van, lehet törlöm
-        return data;
-    }
-    
-    @Override
-    public boolean addToDB(String itemID, String shelf, String box, 
+    public boolean addOrUpdateDB(String itemID, String shelf, String box, 
             String name, String category, int quantity, LocalDateTime placed, 
             LocalDateTime modified, String operator, boolean reorder)
     {
         //placed és modified is now-ot kap
+        /*public Item(String ItemID, String Category, String Name, Integer Quantity, 
+        String OperatorName, LocalDateTime TimePlaced, LocalDateTime TimeModified, 
+                Boolean NeedsReorder, List<Container> Container) { */
+        ArrayList<Container> arList = new ArrayList<>();
+        arList.add(new Container(shelf, box));
         
-        return false;
+        Item outItem = new Item(itemID, category, name, quantity, 
+                operator, placed, modified, reorder, 
+                arList);
+        
+        // át jsonbe
+        JSONObject jsonObject = new JSONObject(outItem);
+        
+        final Logger logger = Logger.getGlobal();
+        
+        logger.log(Level.INFO, jsonObject.toString());
+        int status = 0;
+        try
+        {
+            URL url = new URL("http://localhost:8080/rest/item/withcontainer");
+            
+            HttpURLConnection con = (HttpURLConnection)url.openConnection();
+            
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            con.setDoOutput(true);
+            
+            DataOutputStream wr = new DataOutputStream (
+            con.getOutputStream());
+            wr.writeBytes(jsonObject.toString());
+            wr.close();
+            
+            status = con.getResponseCode();
+            
+            logger.log(Level.INFO, Integer.toString(status));
+            
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(ApiConnector.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ApiConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return status == 201;
     }
     
     /*
@@ -168,7 +272,27 @@ public class ApiConnector implements ApiConnectorInterface {
     @Override
     public boolean removeFromDB(String itemID)
     {
-        return false;
+        final Logger logger = Logger.getGlobal();
+        
+        int status = 0;
+        try
+        {
+            URL url = new URL("http://localhost:8080/rest/item/delete/"+itemID);
+            
+            HttpURLConnection con = (HttpURLConnection)url.openConnection();
+            con.setRequestMethod("DELETE");
+            //con.setDoOutput(true);
+            status = con.getResponseCode();
+            
+            logger.log(Level.INFO, Integer.toString(status));
+            
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(ApiConnector.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ApiConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return status == 200;
     }
     
     

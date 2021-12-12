@@ -4,6 +4,8 @@ import MartinSource.ApiConnector;
 import java.awt.Component;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -65,6 +67,7 @@ public class Raktar extends javax.swing.JFrame {
         int row;
         if((row = raktarTabla.getSelectedRow()) > -1)
         {
+            //Új dobozok kezelését is meg kell oldani :)
             ujButton.setEnabled(false);
             modositButton.setEnabled(true);
             torolButton.setEnabled(true);
@@ -527,7 +530,7 @@ public class Raktar extends javax.swing.JFrame {
         if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,"Biztosan felviszed az új cikket?","Megerősítés" ,JOptionPane.OK_CANCEL_OPTION))
         {
             LocalDateTime now = LocalDateTime.now();
-            connector.addToDB(
+            connector.addOrUpdateDB(
                 cikkszamField.getText(), 
                 polcField.getText(), 
                 dobozField.getText(), 
@@ -547,17 +550,21 @@ public class Raktar extends javax.swing.JFrame {
         // TODO add your handling code here:
         // data[getSelectedRow, 6]
         
+        SimpleDateFormat f = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+        LocalDateTime originalCreation = 
+                ((Date)data[raktarTabla.getSelectedRow()][6]).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        
         if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,"Biztosan módosítod a  cikket?","Megerősítés" ,JOptionPane.OK_CANCEL_OPTION))
         {
             LocalDateTime now = LocalDateTime.now();
-            connector.updateDB(
+            connector.addOrUpdateDB(
                 cikkszamField.getText(), 
                 polcField.getText(), 
                 dobozField.getText(), 
                 megnevezesField.getText(),
                 kategoriaField.getText(),
                 Integer.valueOf(darabField.getText()),
-                now,
+                originalCreation,
                 now,
                 kezeloField.getText(),
                 utanrendelesCheckBox.isSelected()
@@ -609,7 +616,9 @@ public class Raktar extends javax.swing.JFrame {
         //Ha még nincs ilyen cikkszám akkor az új gomb válik elérhetővé
         for(int i = 0; i < raktarTabla.getRowCount(); ++i)
         {
-            if(cikkszamField.getText().trim().equalsIgnoreCase((String)data[i][0]))
+            if(cikkszamField.getText().trim().equalsIgnoreCase((String)data[i][0]) &&
+               polcField.getText().trim().equalsIgnoreCase((String)data[i][1]) &&
+               dobozField.getText().trim().equalsIgnoreCase((String)data[i][2]))
             {
                 raktarTabla.setRowSelectionInterval(i, i);
                 
