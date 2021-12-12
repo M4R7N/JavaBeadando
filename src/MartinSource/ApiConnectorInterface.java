@@ -1,5 +1,6 @@
 package MartinSource;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /* 
@@ -26,23 +27,21 @@ public interface ApiConnectorInterface {
     
     public Object[][] getAllItems(String searchWord);
     
-    public Object[][] getAllItems(String param1, String param2, String param3, String param4,
-            String param5, int param6, Date param7, Date param8, String param9, 
-            boolean param10);
+    public Object[][] getAllItems(String itemID, String shelf, String box, 
+            String name, String category, int quantity, Date placed, 
+            Date modified, String operator, boolean reorder);
     
-    public boolean addToDB(String param1, String param2, String param3, String param4,
-            String param5, int param6, Date param7, Date param8, String param9, 
-            boolean param10);
+    public boolean addToDB(String itemID, String shelf, String box, 
+            String name, String category, int quantity, LocalDateTime placed, 
+            LocalDateTime modified, String operator, boolean reorder);
     
     /*
         true-t ad vissza ha sikerült, false-t ha nem
         AMELYIK PARAMÉTERT NEM HASZNÁLJUK AZ implicit NULL :D
     */
-    public boolean updateDB(String param1, String param2, String param3, String param4,
-            String param5, int param6, Date param7, Date param8, String param9, 
-            boolean param10);
+    public boolean updateDB(String itemID, String shelf, String box, 
+            String name, String category, int quantity, LocalDateTime placed, 
+            LocalDateTime modified, String operator, boolean reorder);
     
-    public boolean removeFromDB(String param1, String param2, String param3, String param4,
-            String param5, int param6, Date param7, Date param8, String param9, 
-            boolean param10);
+    public boolean removeFromDB(String itemID);
 }

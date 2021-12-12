@@ -5,11 +5,11 @@ import java.awt.Component;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
 
 
 /*
@@ -22,7 +22,6 @@ public class Raktar extends javax.swing.JFrame {
     private static final String column_names[]= {"Cikkszám", "Polc", "Doboz", 
         "Megnevezés", "Kategória", "Darabszám", "Elhelyezés dátuma", 
         "Módosítás dátuma", "Kezelő személyzet", "Utánrendelés szükséges"};
-    
     
     private void SetRenderer(JTable table)
     {
@@ -191,6 +190,8 @@ public class Raktar extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        table.setMaximumSize(new java.awt.Dimension(750, 100));
+        table.setMinimumSize(new java.awt.Dimension(750, 100));
         table.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(table);
         if (table.getColumnModel().getColumnCount() > 0) {
@@ -216,12 +217,12 @@ public class Raktar extends javax.swing.JFrame {
                 .addGap(281, 281, 281)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(kereso)
+                .addComponent(kereso, javax.swing.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE)
                 .addGap(238, 238, 238))
             .addGroup(keresesPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1060, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jScrollPane1)
+                .addContainerGap())
         );
         keresesPanelLayout.setVerticalGroup(
             keresesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -294,18 +295,22 @@ public class Raktar extends javax.swing.JFrame {
         }
 
         cikkszamField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        cikkszamField.setNextFocusableComponent(kategoriaField);
         cikkszamField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                cikkszamFieldKeyPressed(evt);
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                cikkszamFieldKeyReleased(evt);
             }
         });
 
         darabField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         darabField.setText("0");
+        darabField.setNextFocusableComponent(kezeloField);
 
         megnevezesField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        megnevezesField.setNextFocusableComponent(polcField);
 
         kategoriaField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        kategoriaField.setNextFocusableComponent(megnevezesField);
 
         elhelyezesField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         elhelyezesField.setText("1970.01.01.");
@@ -320,6 +325,7 @@ public class Raktar extends javax.swing.JFrame {
         modositasField.setMinimumSize(new java.awt.Dimension(91, 23));
 
         kezeloField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        kezeloField.setNextFocusableComponent(utanrendelesCheckBox);
 
         jLabel2.setText("Cikkszám:");
 
@@ -337,6 +343,7 @@ public class Raktar extends javax.swing.JFrame {
 
         ujButton.setText("Új");
         ujButton.setEnabled(false);
+        ujButton.setNextFocusableComponent(modositButton);
         ujButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 ujButtonMouseClicked(evt);
@@ -345,6 +352,7 @@ public class Raktar extends javax.swing.JFrame {
 
         modositButton.setText("Módosít");
         modositButton.setEnabled(false);
+        modositButton.setNextFocusableComponent(torolButton);
         modositButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 modositButtonMouseClicked(evt);
@@ -353,17 +361,23 @@ public class Raktar extends javax.swing.JFrame {
 
         torolButton.setText("Töröl");
         torolButton.setEnabled(false);
+        torolButton.setNextFocusableComponent(cikkszamField);
         torolButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 torolButtonMouseClicked(evt);
             }
         });
 
+        dobozField.setNextFocusableComponent(darabField);
+
+        polcField.setNextFocusableComponent(dobozField);
+
         jLabel10.setText("Polc:");
 
         jLabel11.setText("Doboz:");
 
         utanrendelesCheckBox.setText("Utánrendelés szükséges");
+        utanrendelesCheckBox.setNextFocusableComponent(ujButton);
 
         javax.swing.GroupLayout raktarPanelLayout = new javax.swing.GroupLayout(raktarPanel);
         raktarPanel.setLayout(raktarPanelLayout);
@@ -508,14 +522,58 @@ public class Raktar extends javax.swing.JFrame {
 
     private void ujButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ujButtonMouseClicked
         // TODO add your handling code here:
+        //JOptionPane.showConfirmDialog(this," "," " ,JOptionPane.OK_CANCEL_OPTION);
+        
+        if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,"Biztosan felviszed az új cikket?","Megerősítés" ,JOptionPane.OK_CANCEL_OPTION))
+        {
+            LocalDateTime now = LocalDateTime.now();
+            connector.addToDB(
+                cikkszamField.getText(), 
+                polcField.getText(), 
+                dobozField.getText(), 
+                megnevezesField.getText(),
+                kategoriaField.getText(),
+                Integer.valueOf(darabField.getText()),
+                now,
+                now,
+                kezeloField.getText(),
+                utanrendelesCheckBox.isSelected()
+            );
+            SetUpTable();
+        }
     }//GEN-LAST:event_ujButtonMouseClicked
 
     private void modositButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_modositButtonMouseClicked
         // TODO add your handling code here:
+        // data[getSelectedRow, 6]
+        
+        if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,"Biztosan módosítod a  cikket?","Megerősítés" ,JOptionPane.OK_CANCEL_OPTION))
+        {
+            LocalDateTime now = LocalDateTime.now();
+            connector.updateDB(
+                cikkszamField.getText(), 
+                polcField.getText(), 
+                dobozField.getText(), 
+                megnevezesField.getText(),
+                kategoriaField.getText(),
+                Integer.valueOf(darabField.getText()),
+                now,
+                now,
+                kezeloField.getText(),
+                utanrendelesCheckBox.isSelected()
+            );
+            SetUpTable();
+        }
     }//GEN-LAST:event_modositButtonMouseClicked
 
     private void torolButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_torolButtonMouseClicked
         // TODO add your handling code here:
+        
+        if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,"Biztosan módosítod a  cikket?","Megerősítés" ,JOptionPane.OK_CANCEL_OPTION))
+        {
+            connector.removeFromDB(cikkszamField.getText());
+            SetUpTable();
+        }
     }//GEN-LAST:event_torolButtonMouseClicked
     
     private void raktarTablaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_raktarTablaMouseClicked
@@ -525,38 +583,14 @@ public class Raktar extends javax.swing.JFrame {
         checkSelectedRow();
     }//GEN-LAST:event_raktarTablaMouseClicked
 
-    
-    
-    private void cikkszamFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cikkszamFieldKeyPressed
-        // TODO add your handling code here:
-        
-        //Ha olyan cikkszám kerül ide, ami már létezik, akkor kitöltjük a többi
-        // mezőt (és a gombok elérhetővé válnak)
-        //Ha még nincs ilyen cikkszám akkor az új gomb válik elérhetővé
-        for(int i = 0; i < raktarTabla.getRowCount(); ++i)
-        {
-            if(cikkszamField.getText().equalsIgnoreCase((String)data[i][0]))
-            {
-                raktarTabla.setRowSelectionInterval(i, i);
-                
-                checkSelectedRow();
-                
-                return;
-            }
-        }
-        ujButton.setEnabled(true);
-        modositButton.setEnabled(false);
-        torolButton.setEnabled(false);
-    }//GEN-LAST:event_cikkszamFieldKeyPressed
-
     private void keresoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_keresoKeyReleased
         // TODO add your handling code here:
         //Csak akkor keres ha legalább 3 karaktert beírt
         if(kereso.getText().length() >= 3)
         {
             DefaultTableModel dtm = (DefaultTableModel)table.getModel();
-            data = connector.getAllItems(kereso.getText());
-            dtm.setDataVector(data, column_names);
+            
+            dtm.setDataVector(connector.getAllItems(kereso.getText()), column_names);
             
             SetRenderer(table);
             table.setModel(dtm);
@@ -566,6 +600,30 @@ public class Raktar extends javax.swing.JFrame {
             SetUpTable();
         }
     }//GEN-LAST:event_keresoKeyReleased
+
+    private void cikkszamFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cikkszamFieldKeyReleased
+        // TODO add your handling code here:
+        
+        //Ha olyan cikkszám kerül ide, ami már létezik, akkor kitöltjük a többi
+        // mezőt (és a gombok elérhetővé válnak)
+        //Ha még nincs ilyen cikkszám akkor az új gomb válik elérhetővé
+        for(int i = 0; i < raktarTabla.getRowCount(); ++i)
+        {
+            if(cikkszamField.getText().trim().equalsIgnoreCase((String)data[i][0]))
+            {
+                raktarTabla.setRowSelectionInterval(i, i);
+                
+                checkSelectedRow();
+                
+                return;
+            }
+        }
+        
+        ujButton.setEnabled(!cikkszamField.getText().isBlank());
+        modositButton.setEnabled(false);
+        torolButton.setEnabled(false);
+        
+    }//GEN-LAST:event_cikkszamFieldKeyReleased
 
     /**
      * @param args the command line arguments

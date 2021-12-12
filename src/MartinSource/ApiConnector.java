@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import ItemTest.ItemGenerator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.time.LocalDateTime;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,7 +57,7 @@ public class ApiConnector implements ApiConnectorInterface {
         }
     }
     
-    public Object[][] data;
+    private Object[][] data;
     
     @Override
     public Object[][] getAllItems()
@@ -76,17 +77,18 @@ public class ApiConnector implements ApiConnectorInterface {
             //ha 200 akkor ok
             if(status == 200)
             {
-            String jsonReply;
-            //lekérjük a válasz input streamjét
-            InputStream response = connection.getInputStream();
-            //átalakítjuk a választ stringé a függvénnyel
-            jsonReply = convertStreamToString(response);
-            //teszt kiriatás hogy jó-e
-            logger.log(Level.INFO, jsonReply);
+                String jsonReply;
+                //lekérjük a válasz input streamjét
+                InputStream response = connection.getInputStream();
+                //átalakítjuk a választ stringé a függvénnyel
+                jsonReply = convertStreamToString(response);
+                //teszt kiriatás hogy jó-e
+                logger.log(Level.INFO, jsonReply);
             }
             else
             {
-                //csinálni valamit ha nem ment a kérés(valszeg nem fut az api)
+                //Legyen üres a visszaadott adat
+                data = new Object[0][10];
             }
         } catch (MalformedURLException ex) {
             Logger.getLogger(ApiConnector.class.getName()).log(Level.SEVERE, null, ex);
@@ -94,19 +96,6 @@ public class ApiConnector implements ApiConnectorInterface {
             Logger.getLogger(ApiConnector.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        /*
-        try
-        {
-            JSONObject json = readJsonFromUrl("localhost:8080/rest/test/item/");
-
-            //Minden egyéb csak még nincs meg a json formátum
-
-            JSONArray arr = new JSONArray();
-        }
-        catch(IOException |JSONException e) {
-            Logger.Log(e.toString());
-        }
-        */
         return data;
     }
     
@@ -140,20 +129,26 @@ public class ApiConnector implements ApiConnectorInterface {
         return outData;
     }
     
+    /* {"Cikkszám", "Polc", "Doboz", 
+        "Megnevezés", "Kategória", "Darabszám", "Elhelyezés dátuma", 
+        "Módosítás dátuma", "Kezelő személyzet", "Utánrendelés szükséges"};
+    */
+    
     @Override
-    public Object[][] getAllItems(String param1, String param2, String param3, String param4,
-            String param5, int param6, Date param7, Date param8, String param9, 
-            boolean param10)
+    public Object[][] getAllItems(String itemID, String shelf, String box, 
+            String name, String category, int quantity, Date placed, 
+            Date modified, String operator, boolean reorder)
     {
         //Ezt nem akarom használni mert nem sok értelme van, lehet törlöm
         return data;
     }
     
     @Override
-    public boolean addToDB(String param1, String param2, String param3, String param4,
-            String param5, int param6, Date param7, Date param8, String param9, 
-            boolean param10)
+    public boolean addToDB(String itemID, String shelf, String box, 
+            String name, String category, int quantity, LocalDateTime placed, 
+            LocalDateTime modified, String operator, boolean reorder)
     {
+        //placed és modified is now-ot kap
         
         return false;
     }
@@ -163,17 +158,15 @@ public class ApiConnector implements ApiConnectorInterface {
         AMELYIK PARAMÉTERT NEM HASZNÁLJUK AZ implicit NULL :D
     */
     @Override
-    public boolean updateDB(String param1, String param2, String param3, String param4,
-            String param5, int param6, Date param7, Date param8, String param9, 
-            boolean param10)
+    public boolean updateDB(String itemID, String shelf, String box, 
+            String name, String category, int quantity, LocalDateTime placed, 
+            LocalDateTime modified, String operator, boolean reorder)
     {
         return false;
     }
     
     @Override
-    public boolean removeFromDB(String param1, String param2, String param3, String param4,
-            String param5, int param6, Date param7, Date param8, String param9, 
-            boolean param10)
+    public boolean removeFromDB(String itemID)
     {
         return false;
     }
