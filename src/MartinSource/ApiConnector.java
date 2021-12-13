@@ -210,10 +210,7 @@ public class ApiConnector implements ApiConnectorInterface {
             String name, String category, int quantity, LocalDateTime placed, 
             LocalDateTime modified, String operator, boolean reorder)
     {
-        //placed és modified is now-ot kap
-        /*public Item(String ItemID, String Category, String Name, Integer Quantity, 
-        String OperatorName, LocalDateTime TimePlaced, LocalDateTime TimeModified, 
-                Boolean NeedsReorder, List<Container> Container) { */
+        //ha módosítás akkor a placed marad, a modified változik csak
         ArrayList<Container> arList = new ArrayList<>();
         arList.add(new Container(shelf, box));
         
@@ -237,6 +234,7 @@ public class ApiConnector implements ApiConnectorInterface {
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
+            
             con.setDoOutput(true);
             
             DataOutputStream wr = new DataOutputStream (
@@ -257,10 +255,6 @@ public class ApiConnector implements ApiConnectorInterface {
         return status == 201;
     }
     
-    /*
-        true-t ad vissza ha sikerült, false-t ha nem
-        AMELYIK PARAMÉTERT NEM HASZNÁLJUK AZ implicit NULL :D
-    */
     @Override
     public boolean updateDB(String itemID, String shelf, String box, 
             String name, String category, int quantity, LocalDateTime placed, 
@@ -277,7 +271,7 @@ public class ApiConnector implements ApiConnectorInterface {
         int status = 0;
         try
         {
-            URL url = new URL("http://localhost:8080/rest/item/delete/"+itemID);
+            URL url = new URL("http://localhost:8080/rest/item/delete/".concat(itemID));
             
             HttpURLConnection con = (HttpURLConnection)url.openConnection();
             con.setRequestMethod("DELETE");

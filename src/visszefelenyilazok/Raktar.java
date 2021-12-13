@@ -62,6 +62,23 @@ public class Raktar extends javax.swing.JFrame {
         raktarTabla.setModel(dtm);
     }
     
+    private void ClearDataFields()
+    {
+        ujButton.setEnabled(false);
+        modositButton.setEnabled(false);
+        torolButton.setEnabled(false);
+        cikkszamField.setText("");
+        polcField.setText("");
+        dobozField.setText("");
+        megnevezesField.setText("");
+        kategoriaField.setText("");
+        darabField.setText("");
+        elhelyezesField.setText("");
+        modositasField.setText("");
+        kezeloField.setText("");
+        utanrendelesCheckBox.setSelected(false);
+    }
+    
     private void checkSelectedRow()
     {
         int row;
@@ -372,8 +389,18 @@ public class Raktar extends javax.swing.JFrame {
         });
 
         dobozField.setNextFocusableComponent(darabField);
+        dobozField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                cikkszamFieldKeyReleased(evt);
+            }
+        });
 
         polcField.setNextFocusableComponent(dobozField);
+        polcField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                cikkszamFieldKeyReleased(evt);
+            }
+        });
 
         jLabel10.setText("Polc:");
 
@@ -530,7 +557,7 @@ public class Raktar extends javax.swing.JFrame {
         if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,"Biztosan felviszed az új cikket?","Megerősítés" ,JOptionPane.OK_CANCEL_OPTION))
         {
             LocalDateTime now = LocalDateTime.now();
-            connector.addOrUpdateDB(
+            if(connector.addOrUpdateDB(
                 cikkszamField.getText(), 
                 polcField.getText(), 
                 dobozField.getText(), 
@@ -541,7 +568,8 @@ public class Raktar extends javax.swing.JFrame {
                 now,
                 kezeloField.getText(),
                 utanrendelesCheckBox.isSelected()
-            );
+            ))
+                ClearDataFields();
             SetUpTable();
         }
     }//GEN-LAST:event_ujButtonMouseClicked
@@ -550,14 +578,14 @@ public class Raktar extends javax.swing.JFrame {
         // TODO add your handling code here:
         // data[getSelectedRow, 6]
         
-        SimpleDateFormat f = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+        
         LocalDateTime originalCreation = 
                 ((Date)data[raktarTabla.getSelectedRow()][6]).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         
         if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,"Biztosan módosítod a  cikket?","Megerősítés" ,JOptionPane.OK_CANCEL_OPTION))
         {
             LocalDateTime now = LocalDateTime.now();
-            connector.addOrUpdateDB(
+            if(connector.addOrUpdateDB(
                 cikkszamField.getText(), 
                 polcField.getText(), 
                 dobozField.getText(), 
@@ -568,7 +596,8 @@ public class Raktar extends javax.swing.JFrame {
                 now,
                 kezeloField.getText(),
                 utanrendelesCheckBox.isSelected()
-            );
+            ))
+                ClearDataFields();
             SetUpTable();
         }
     }//GEN-LAST:event_modositButtonMouseClicked
@@ -576,9 +605,11 @@ public class Raktar extends javax.swing.JFrame {
     private void torolButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_torolButtonMouseClicked
         // TODO add your handling code here:
         
-        if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,"Biztosan módosítod a  cikket?","Megerősítés" ,JOptionPane.OK_CANCEL_OPTION))
+        if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,
+                "Biztosan törlöd a  cikket?","Megerősítés" ,JOptionPane.OK_CANCEL_OPTION))
         {
-            connector.removeFromDB(cikkszamField.getText());
+            if(connector.removeFromDB(cikkszamField.getText()))
+                ClearDataFields();
             SetUpTable();
         }
     }//GEN-LAST:event_torolButtonMouseClicked
@@ -614,6 +645,10 @@ public class Raktar extends javax.swing.JFrame {
         //Ha olyan cikkszám kerül ide, ami már létezik, akkor kitöltjük a többi
         // mezőt (és a gombok elérhetővé válnak)
         //Ha még nincs ilyen cikkszám akkor az új gomb válik elérhetővé
+        
+        //Ha van ilyen cikkszám de másik dobozban, azt módosítani lehessen
+        //count(cikk) > 1 -> módosítás
+        
         for(int i = 0; i < raktarTabla.getRowCount(); ++i)
         {
             if(cikkszamField.getText().trim().equalsIgnoreCase((String)data[i][0]) &&
@@ -628,10 +663,12 @@ public class Raktar extends javax.swing.JFrame {
             }
         }
         
-        ujButton.setEnabled(!cikkszamField.getText().isBlank());
+        ujButton.setEnabled(!cikkszamField.getText().isBlank()&&
+                !polcField.getText().isBlank()&&
+                !dobozField.getText().isBlank()
+        );
         modositButton.setEnabled(false);
         torolButton.setEnabled(false);
-        
     }//GEN-LAST:event_cikkszamFieldKeyReleased
 
     /**
